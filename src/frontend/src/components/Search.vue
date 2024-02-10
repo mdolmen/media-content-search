@@ -53,7 +53,7 @@ function getTranscriptForDev() {
     };
 }
 
-const data = getTranscriptForDev();
+const transcript = getTranscriptForDev();
 </script>
 
 <template>
@@ -74,7 +74,14 @@ const data = getTranscriptForDev();
                     <source src="../assets/c-in-100-seconds.webm" type="video/webm" />
                 </video>
             </div>
-            <div id="result" class="col col-6">{{ data }}</div>
+
+            <div id="result" class="col col-6">
+                <ul class="list-group">
+                    <li v-for="(line, timestamp) in transcript" :key="timestamp" class="list-group-item list-group-item-action">
+                        {{ timestamp }} : {{ line }}
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </template>
