@@ -19,6 +19,12 @@ async function getTranscript() {
     }
 }
 
+function videoSeek(time: number) {
+    const player = document.getElementById('player');
+    player.currentTime = time;
+    player.play();
+}
+
 function getTranscriptForDev() {
     return {
   "0.0": " See, a statically typed procedural programming language famous for making the world go around.",
@@ -70,14 +76,14 @@ const transcript = getTranscriptForDev();
 
         <div class="row">
             <div class="col col-6">
-                <video controls style="width: 100%">
+                <video id="player" controls style="width: 100%">
                     <source src="../assets/c-in-100-seconds.webm" type="video/webm" />
                 </video>
             </div>
 
             <div id="result" class="col col-6">
                 <ul class="list-group">
-                    <li v-for="(line, timestamp) in transcript" :key="timestamp" class="list-group-item list-group-item-action">
+                    <li v-for="(line, timestamp) in transcript" :key="timestamp" class="list-group-item list-group-item-action" @click="videoSeek(timestamp)">
                         {{ timestamp }} : {{ line }}
                     </li>
                 </ul>
