@@ -32,6 +32,6 @@ async def transcript():
     transcript = video.get_transcript()
     result = {}
     for segment in transcript["segments"]:
-        result[utils.float_to_datetime(segment['start'])] = segment['text']
+        result[round(segment['start'], 2)] = segment['text']
 
     return result
