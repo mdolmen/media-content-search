@@ -82,12 +82,36 @@ const transcript = getTranscriptForDev();
             </div>
 
             <div id="result" class="col col-6">
+                <div class="transcript">
                 <ul class="list-group">
-                    <li v-for="(line, timestamp) in transcript" :key="timestamp" class="list-group-item list-group-item-action" @click="videoSeek(timestamp)">
+                    <li v-for="(line, timestamp) in transcript" :key="timestamp" class="list-group-item list-group-item-action transcript-line" @click="videoSeek(timestamp)">
                         {{ timestamp }} : {{ line }}
                     </li>
                 </ul>
+                </div>
+
+                <div class="row search-bar">
+                    <input type="text" placeholder="Search" class="col">
+                    <button class="col col-2">Search</button>
+                </div>
             </div>
         </div>
     </div>
 </template>
+
+<style>
+.transcript {
+    max-height: 70vh;
+    overflow: scroll;
+}
+
+.transcript-line {
+    white-space: nowrap;
+    overflow: scroll;
+}
+
+.search-bar {
+    margin: auto;
+    margin-top: 1rem;
+}
+</style>
