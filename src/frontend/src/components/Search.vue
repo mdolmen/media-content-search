@@ -1,5 +1,12 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import axios from 'axios';
+
+// Issue '..not a constructor' when importing this module as the others
+//     https://github.com/nextapps-de/flexsearch/issues/341#issuecomment-1296011307
+// Using the following from the project's README
+import Index from "../../node_modules/flexsearch/dist/module/index";
+import Document from "../../node_modules/flexsearch/dist/module/document";
 
 const backend_url = 'http://localhost:8000'
 
@@ -60,6 +67,45 @@ function getTranscriptForDev() {
 }
 
 const transcript = getTranscriptForDev();
+const index = setupRealTimeSearch();
+const inputSearch = ref("");
+
+function setupRealTimeSearch() {
+    var index = new Document({
+        id: "time",
+        index: [{
+            field: "content",
+            tokenize: "full"
+        }]
+    });
+    // TODO: transcript from parameter instead?
+    for (let key in transcript) {
+        index.add({
+            time: key,
+            content: transcript[key]
+        });
+    }
+
+    return index;
+}
+
+function realTimeSearch() {
+    let resultIndex = index.search(inputSearch.value);
+    let result = {};
+
+    if (resultIndex.length <= 0) {
+        return result;
+    }
+
+    let times = resultIndex[0]["result"];
+    for (let i in times) {
+        result[times[i]] = transcript[times[i]];
+    }
+
+    return result;
+}
+
+setupRealTimeSearch();
 </script>
 
 <template>
@@ -84,15 +130,17 @@ const transcript = getTranscriptForDev();
             <div id="result" class="col col-6">
                 <div class="transcript">
                 <ul class="list-group">
-                    <li v-for="(line, timestamp) in transcript" :key="timestamp" class="list-group-item list-group-item-action transcript-line" @click="videoSeek(timestamp)">
+                    <li v-for="(line, timestamp) in inputSearch ? realTimeSearch() : transcript" :key="timestamp"
+                        class="list-group-item list-group-item-action transcript-line"
+                        @click="videoSeek(timestamp)"
+                    >
                         {{ timestamp }} : {{ line }}
                     </li>
                 </ul>
                 </div>
 
                 <div class="row search-bar">
-                    <input type="text" placeholder="Search" class="col">
-                    <button class="col col-2">Search</button>
+                    <input type="text" placeholder="Search" class="col" v-model="inputSearch">
                 </div>
             </div>
         </div>
@@ -101,6 +149,8 @@ const transcript = getTranscriptForDev();
 
 <style>
 .transcript {
+    border-style: solid;
+    min-height: 70vh;
     max-height: 70vh;
     overflow: scroll;
 }
