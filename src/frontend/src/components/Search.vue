@@ -66,7 +66,7 @@ function getTranscriptForDev() {
     };
 }
 
-const transcript = getTranscriptForDev();
+let transcript = getTranscriptForDev();
 const index = setupRealTimeSearch();
 const inputSearch = ref("");
 
@@ -105,7 +105,10 @@ function realTimeSearch() {
     return result;
 }
 
-setupRealTimeSearch();
+async function updateTranscript() {
+    transcript = getTranscriptForDev();
+    setupRealTimeSearch();
+}
 </script>
 
 <template>
@@ -114,10 +117,10 @@ setupRealTimeSearch();
     <div class="d-grid gap-3">
         <div class="row justify-content-md-center">
             <input type="text" id="video-url" name="video-url" placeholder="Video URL" class="col">
-            <button class="col col-1">Load</button>
+            <button class="col col-1" @click="updateTranscript()">Load</button>
         </div>
         <div class="row">
-            <button class="col">Upload</button>
+            <button class="col">Upload (use local video for dev)</button>
         </div>
 
         <div class="row">
