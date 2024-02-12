@@ -67,8 +67,11 @@ function getTranscriptForDev() {
 }
 
 let transcript = getTranscriptForDev();
-const index = setupRealTimeSearch();
-const inputSearch = ref("");
+let isYoutube = ref(false);
+let videoUrl = ref("");
+let videoEmbedUrl = ref("");
+let index = setupRealTimeSearch();
+let inputSearch = ref("");
 
 function setupRealTimeSearch() {
     var index = new Document({
@@ -105,8 +108,44 @@ function realTimeSearch() {
     return result;
 }
 
+/*
+ * Source: https://stackoverflow.com/questions/3452546/how-do-i-get-the-youtube-video-id-from-a-url
+ *
+ * Supported formats:
+ *    http://www.youtube.com/watch?v=0zM3nApSvMg&feature=feedrec_grec_index
+ *    http://www.youtube.com/user/IngridMichaelsonVEVO#p/a/u/1/QdK8U-VIH_o
+ *    http://www.youtube.com/v/0zM3nApSvMg?fs=1&amp;hl=en_US&amp;rel=0
+ *    http://www.youtube.com/watch?v=0zM3nApSvMg#t=0m10s
+ *    http://www.youtube.com/embed/0zM3nApSvMg?rel=0
+ *    http://www.youtube.com/watch?v=0zM3nApSvMg
+ *    http://youtu.be/0zM3nApSvMg
+ */
+function youtubeParser(url){
+    var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+    var match = url.match(regExp);
+    return (match&&match[7].length==11)? match[7] : false;
+}
+
 async function updateTranscript() {
-    transcript = getTranscriptForDev();
+    const videoId = youtubeParser(videoUrl.value);
+    videoEmbedUrl = "https://www.youtube.com/embed/"+videoId;
+
+    console.log(videoId);
+    console.log("getting transcript");
+
+    // Load video and extract transcript
+    try {
+        const response = await axios.get(backend_url+'/load', {
+            params: { link: videoEmbedUrl }
+        });
+        const data = response.data;
+        transcript = data;
+        //console.log('Transcript:\n', data);
+    } catch (error) {
+        console.log(error);
+    }
+
+    console.log("done");
     setupRealTimeSearch();
 }
 </script>
@@ -116,16 +155,21 @@ async function updateTranscript() {
 
     <div class="d-grid gap-3">
         <div class="row justify-content-md-center">
-            <input type="text" id="video-url" name="video-url" placeholder="Video URL" class="col">
-            <button class="col col-1" @click="updateTranscript()">Load</button>
+            <!--TODO: remove v-model, update only on click-->
+            <input type="text" id="video-url" name="video-url" v-model="videoUrl" placeholder="Video URL" class="col">
+            <button class="col col-1" @click="isYoutube = true; updateTranscript()">Load</button>
         </div>
         <div class="row">
-            <button class="col">Upload (use local video for dev)</button>
+            <button class="col" @click="isYoutube = false;">Upload (use local video for dev)</button>
         </div>
 
         <div class="row">
             <div class="col col-6">
-                <video id="player" controls style="width: 100%">
+                <iframe class="player" controls style="width: 100%"
+                    v-if="isYoutube" v-bind:src="videoEmbedUrl" allowfullscreen
+                >
+                </iframe>
+                <video class="player" controls style="width: 100%" v-else>
                     <source src="../assets/c-in-100-seconds.webm" type="video/webm" />
                 </video>
             </div>
@@ -166,5 +210,9 @@ async function updateTranscript() {
 .search-bar {
     margin: auto;
     margin-top: 1rem;
+}
+
+.player {
+    height: 50vh;
 }
 </style>
