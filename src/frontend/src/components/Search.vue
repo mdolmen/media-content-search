@@ -10,22 +10,6 @@ import Document from "../../node_modules/flexsearch/dist/module/document";
 
 const backend_url = 'http://localhost:8000'
 
-async function getTranscript() {
-    try {
-        const response = await axios.get(backend_url+'/transcript');
-        const data = response.data;
-        console.log('Transcript:\n', data);
-
-        // Update the div with the fetched data
-        const resultDiv = document.getElementById('result');
-        if (resultDiv) {
-            resultDiv.innerHTML = `Data from FastAPI: ${JSON.stringify(data)}`;
-        }
-    } catch (error) {
-        console.log(error);
-    }
-}
-
 function videoSeek(time: number) {
     const player = document.getElementById('player');
     player.currentTime = time;
