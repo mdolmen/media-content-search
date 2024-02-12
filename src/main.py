@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -10,7 +12,7 @@ app = FastAPI()
 
 # TODO: setup properly
 origins = [
-    "http://localhost",
+    "http://localhost:8000",
 ]
 
 app.add_middleware(
@@ -24,14 +26,22 @@ app.add_middleware(
 async def index():
     return {"message": "Hello World"}
 
-@app.get("/transcript")
-async def transcript():
-    video = VideoContentSearch("../testdata/c-in-100-seconds.opus")
-    video.get_lang()
-
-    transcript = video.get_transcript()
+@app.get("/load")
+async def load(link):
+    """
+    Extract audio from a youtube video and get its transcript.
+    """
     result = {}
+    video = VideoContentSearch(link)
+    #video.get_lang()
+    transcript = video.get_transcript()
+
     for segment in transcript["segments"]:
         result[round(segment['start'], 2)] = segment['text']
 
     return result
+
+# TODO
+@app.get("/upload")
+async def upload():
+    return
