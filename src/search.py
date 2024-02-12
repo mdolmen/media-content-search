@@ -7,6 +7,7 @@ import os
 class VideoContentSearch:
     def __init__(self, link):
         self.prefix = "/tmp/vcs_"
+        self.count_tmpfiles = 0
         self.model = whisper.load_model("base")
         self.src = self.extract_audio(link)
         self.audio = whisper.load_audio(self.src)
@@ -56,5 +57,19 @@ class VideoContentSearch:
         result = self.model.transcribe(self.audio);
         end = time.time()
         print(f"[+] Transcribe time = {end-start}")
+        self.cleanup()
 
         return result
+
+    def cleanup(self):
+        """
+        Remove downloaded files after a while.
+        """
+        self.count_tmpfiles += 1
+
+        if self.count_tmpfiles < 10:
+            return
+
+        for f in glob.glob(f"{prefix}*"):
+            os.remove(f)
+        self.count_tmpfiles += 0
