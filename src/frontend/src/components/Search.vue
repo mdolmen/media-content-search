@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import axios from 'axios';
 
 // Issue '..not a constructor' when importing this module as the others
@@ -12,12 +12,13 @@ const backend_url = 'http://localhost:8000'
 
 function videoSeek(time: number) {
     const player = document.getElementById('player');
+
     player.currentTime = time;
     player.play();
 }
 
 function getTranscriptForDev() {
-    return {
+    transcript.value = {
   "0.0": " See, a statically typed procedural programming language famous for making the world go around.",
   "5.52": " It's the language behind many tools we take for granted, like the Windows, Linux, and Mac operating",
   "10.48": " system kernels, databases like MySQL, interpreters for languages like Python, tools like VIM and Git,",
@@ -50,30 +51,30 @@ function getTranscriptForDev() {
     };
 }
 
-let transcript = getTranscriptForDev();
+let transcript = ref();
 let isYoutube = ref(false);
 let videoUrl = ref("");
 let videoEmbedUrl = ref("");
-let index = setupRealTimeSearch();
+let index = new Document({
+  id: "time",
+  index: [{
+    field: "content",
+    tokenize: "full"
+  }]
+});
 let inputSearch = ref("");
+let status = ref("idle");
 
 function setupRealTimeSearch() {
-    var index = new Document({
-        id: "time",
-        index: [{
-            field: "content",
-            tokenize: "full"
-        }]
-    });
     // TODO: transcript from parameter instead?
-    for (let key in transcript) {
+    for (let key in transcript.value) {
         index.add({
             time: key,
-            content: transcript[key]
+            content: transcript.value[key]
         });
     }
 
-    return index;
+    console.log(index);
 }
 
 function realTimeSearch() {
@@ -86,7 +87,7 @@ function realTimeSearch() {
 
     let times = resultIndex[0]["result"];
     for (let i in times) {
-        result[times[i]] = transcript[times[i]];
+        result[times[i]] = transcript.value[times[i]];
     }
 
     return result;
@@ -113,6 +114,8 @@ function youtubeParser(url){
 async function updateTranscript() {
     const videoId = youtubeParser(videoUrl.value);
     videoEmbedUrl = "https://www.youtube.com/embed/"+videoId;
+    transcript.value = {}
+    status.value = "extracting transcript...";
 
     console.log(videoId);
     console.log("getting transcript");
@@ -123,13 +126,14 @@ async function updateTranscript() {
             params: { link: videoEmbedUrl }
         });
         const data = response.data;
-        transcript = data;
-        //console.log('Transcript:\n', data);
+        transcript.value = data;
+        console.log('Transcript:\n', transcript.value);
     } catch (error) {
         console.log(error);
     }
 
     console.log("done");
+    status.value = "transcript loaded";
     setupRealTimeSearch();
 }
 </script>
@@ -139,23 +143,25 @@ async function updateTranscript() {
 
     <div class="d-grid gap-3">
         <div class="row justify-content-md-center">
-            <!--TODO: remove v-model, update only on click-->
             <input type="text" id="video-url" name="video-url" v-model="videoUrl" placeholder="Video URL" class="col">
             <button class="col col-1" @click="isYoutube = true; updateTranscript()">Load</button>
         </div>
         <div class="row">
-            <button class="col" @click="isYoutube = false;">Upload (use local video for dev)</button>
+            <button class="col" @click="isYoutube = false; getTranscriptForDev()">Upload (use local video for dev)</button>
         </div>
 
         <div class="row">
             <div class="col col-6">
-                <iframe class="player" controls style="width: 100%"
+                <iframe id="player" class="player" controls style="width: 100%"
                     v-if="isYoutube" v-bind:src="videoEmbedUrl" allowfullscreen
                 >
                 </iframe>
-                <video class="player" controls style="width: 100%" v-else>
+                <video id="player" class="player" controls style="width: 100%" v-else>
                     <source src="../assets/c-in-100-seconds.webm" type="video/webm" />
                 </video>
+                <div class="row">
+                    <p>Status: {{ status }}</p>
+                </div>
             </div>
 
             <div id="result" class="col col-6">
