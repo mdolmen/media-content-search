@@ -188,15 +188,18 @@ loadYoutubeAPI()
 </script>
 
 <template>
-    <h1>Media Content Search</h1>
+    <h1 class="display-1" style="text-align: center; padding-bottom: 20px;">Media Content Search</h1>
 
     <div class="d-grid gap-3">
         <div class="row justify-content-md-center">
-            <input type="text" id="video-url" name="video-url" v-model="videoUrl" placeholder="Video URL" class="col">
-            <button class="col col-1" @click="isYoutube = true; updateTranscript()">Load</button>
-        </div>
-        <div class="row">
-            <button class="col" @click="isYoutube = false; getTranscriptForDev()">Upload (use local video for dev)</button>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Video URL" aria-label="Video URL" aria-describedby="basic-addon2" v-model="videoUrl">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" @click="isYoutube = true; updateTranscript()">Load</button>
+                    <button class="col btn btn-secondary" @click="isYoutube = false; getTranscriptForDev()">[TODO] Upload (load transcript for dev)</button>
+                </div>
+            </div>
+
         </div>
 
         <div class="row">
@@ -210,7 +213,23 @@ loadYoutubeAPI()
             </div>
 
             <div id="result" class="col col-6">
+                  <ul class="nav nav-tabs">
+                      <li class="nav-item">
+                          <a class="nav-link active" href="#">Search</a>
+                      </li>
+                      <li class="nav-item">
+                          <a class="nav-link" href="#">ChatGPT</a>
+                      </li>
+                      <li class="nav-item">
+                          <a class="nav-link" href="#">Local AI</a>
+                      </li>
+                      <li class="nav-item">
+                          <a class="nav-link" href="#">Keywords</a>
+                      </li>
+                  </ul>
+
                 <div class="transcript">
+
                 <ul class="list-group">
                     <li v-for="(line, timestamp) in inputSearch ? realTimeSearch() : transcript" :key="timestamp"
                         class="list-group-item list-group-item-action transcript-line"
@@ -221,8 +240,8 @@ loadYoutubeAPI()
                 </ul>
                 </div>
 
-                <div class="row search-bar">
-                    <input type="text" placeholder="Search" class="col" v-model="inputSearch">
+                <div class="input-group search-bar">
+                  <input type="text" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="basic-addon2" v-model="inputSearch">
                 </div>
             </div>
         </div>
@@ -232,8 +251,9 @@ loadYoutubeAPI()
 <style>
 .transcript {
     border-style: solid;
-    min-height: 70vh;
-    max-height: 70vh;
+    border-width: 1px;
+    min-height: 63vh;
+    max-height: 63vh;
     overflow: scroll;
 }
 
@@ -244,7 +264,7 @@ loadYoutubeAPI()
 
 .search-bar {
     margin: auto;
-    margin-top: 1rem;
+    margin-top: 8px;
 }
 
 iframe {
