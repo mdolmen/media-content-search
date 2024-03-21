@@ -11,10 +11,8 @@ import Document from "../../node_modules/flexsearch/dist/module/document";
 const backend_url = 'http://localhost:8000'
 
 function videoSeek(time: number) {
-    const player = document.getElementById('player');
-
-    player.currentTime = time;
-    player.play();
+    player.seekTo(time, true);
+    player.playVideo();
 }
 
 function getTranscriptForDev() {
@@ -64,6 +62,8 @@ let index = new Document({
 });
 let inputSearch = ref("");
 let status = ref("idle");
+let player = null;
+let ytAPIReady = false;
 
 function setupRealTimeSearch() {
     // TODO: transcript from parameter instead?
@@ -120,7 +120,23 @@ async function updateTranscript() {
     console.log(videoId);
     console.log("getting transcript");
 
-    // Load video and extract transcript
+    // Load video
+    if (player === null) {
+        player = new YT.Player('player', {
+            videoId: videoId,
+            playerVars: {
+                'playsinline': 1
+            },
+            events: {
+                'onReady': onPlayerReady
+            }
+        });
+    }
+    else {
+        player.loadVideoById(videoId);
+    }
+
+    // Extract transcript
     try {
         const response = await axios.get(backend_url+'/load', {
             params: { link: videoEmbedUrl }
@@ -136,6 +152,39 @@ async function updateTranscript() {
     status.value = "transcript loaded";
     setupRealTimeSearch();
 }
+
+//
+// YouTube player
+// Source: https://developers.google.com/youtube/iframe_api_reference#Loading_a_Video_Player
+//
+
+// 2. This code loads the IFrame Player API code asynchronously.
+function loadYoutubeAPI() {
+    console.log("loading youtube api");
+    var tag = document.createElement('script');
+
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    // To make the callback accessible to the API
+    window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+}
+
+// 3. This function creates an <iframe> (and YouTube player)
+//    after the API code downloads.
+function onYouTubeIframeAPIReady() {
+    console.log("onYouTubeIframeAPIReady");
+    ytAPIReady = true;
+}
+
+// 4. The API will call this function when the video player is ready.
+function onPlayerReady(event) {
+    console.log("onPlayerReady");
+    event.target.playVideo();
+}
+
+loadYoutubeAPI()
 </script>
 
 <template>
@@ -152,13 +201,9 @@ async function updateTranscript() {
 
         <div class="row">
             <div class="col col-6">
-                <iframe id="player" class="player" controls style="width: 100%"
-                    v-if="isYoutube" v-bind:src="videoEmbedUrl" allowfullscreen
-                >
-                </iframe>
-                <video id="player" class="player" controls style="width: 100%" v-else>
-                    <source src="../assets/c-in-100-seconds.webm" type="video/webm" />
-                </video>
+                <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+                <div id="player"></div>
+
                 <div class="row">
                     <p>Status: {{ status }}</p>
                 </div>
@@ -202,7 +247,8 @@ async function updateTranscript() {
     margin-top: 1rem;
 }
 
-.player {
-    height: 50vh;
+iframe {
+    height: 50vh !important;
+    width: 100% !important;
 }
 </style>
