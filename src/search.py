@@ -4,7 +4,7 @@ import yt_dlp
 import glob
 import os
 
-class VideoContentSearch:
+class MediaContentSearch:
     def __init__(self, link):
         self.prefix = "/tmp/vcs_"
         self.count_tmpfiles = 0

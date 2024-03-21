@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 import utils
-from search import VideoContentSearch
+from search import MediaContentSearch
 
 app = FastAPI()
 
@@ -32,7 +32,7 @@ async def load(link):
     Extract audio from a youtube video and get its transcript.
     """
     result = {}
-    video = VideoContentSearch(link)
+    video = MediaContentSearch(link)
     #video.get_lang()
     transcript = video.get_transcript()
 

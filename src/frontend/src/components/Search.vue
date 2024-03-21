@@ -188,7 +188,7 @@ loadYoutubeAPI()
 </script>
 
 <template>
-    <h1>Video Content Search</h1>
+    <h1>Media Content Search</h1>
 
     <div class="d-grid gap-3">
         <div class="row justify-content-md-center">
