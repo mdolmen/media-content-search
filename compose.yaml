@@ -1,0 +1,22 @@
+#
+# Inspired from: https://testdriven.io/blog/developing-a-single-page-app-with-fastapi-and-vuejs/
+#
+
+version: '3.8'
+
+services:
+  backend:
+    container_name: mcs-backend
+    build: ./backend
+    ports:
+      - 8000:8000
+    command: uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+  frontend:
+    container_name: mcs-frontend
+    build: ./frontend
+    ports:
+      - 5173:5173
+    environment:
+      HOST: 0.0.0.0
+    command: npm run dev -- --host 0.0.0.0 --port 5173
