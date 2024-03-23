@@ -190,7 +190,7 @@ loadYoutubeAPI()
 <template>
     <h1 class="display-1" style="text-align: center; padding-bottom: 20px;">Media Content Search</h1>
 
-    <div class="d-grid gap-3">
+    <div class="gap-3">
         <div class="row justify-content-md-center">
             <div class="input-group mb-3">
                 <input type="text" class="form-control" placeholder="Video URL" aria-label="Video URL" aria-describedby="basic-addon2" v-model="videoUrl">
@@ -203,7 +203,7 @@ loadYoutubeAPI()
         </div>
 
         <div class="row">
-            <div class="col col-6">
+            <div id="player-wrapper" class="col col-6">
                 <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
                 <div id="player"></div>
 
@@ -265,6 +265,14 @@ loadYoutubeAPI()
 .search-bar {
     margin: auto;
     margin-top: 8px;
+}
+
+#player-wrapper {
+  max-width: 50%;
+}
+
+#result {
+  max-width: 50%;
 }
 
 iframe {
