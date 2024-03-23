@@ -1,4 +1,3 @@
-whisper
 fastapi
 uvicorn
 yt-dlp
