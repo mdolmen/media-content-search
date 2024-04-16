@@ -8,7 +8,16 @@ import axios from 'axios';
 import Index from "../../node_modules/flexsearch/dist/module/index";
 import Document from "../../node_modules/flexsearch/dist/module/document";
 
+// TEST TAURI
+import { invoke } from '@tauri-apps/api';
+
 const backend_url = 'http://localhost:8000'
+
+function test_python_from_rust() {
+    invoke('py_get_version')
+        .then((response) => debug.value = response)
+}
+test_python_from_rust();
 
 function videoSeek(time: number) {
     player.seekTo(time, true);
@@ -62,6 +71,7 @@ let index = new Document({
 });
 let inputSearch = ref("");
 let status = ref("idle");
+let debug = ref("nothing");
 let player = null;
 let ytAPIReady = false;
 
@@ -207,6 +217,9 @@ loadYoutubeAPI()
 
                 <div class="row">
                     <p>Status: {{ status }}</p>
+                </div>
+                <div class="row">
+                    <p>Debug: {{ debug }}</p>
                 </div>
             </div>
 
