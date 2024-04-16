@@ -188,8 +188,6 @@ loadYoutubeAPI()
 </script>
 
 <template>
-    <h1 class="display-1" style="text-align: center; padding-bottom: 20px;">Media Content Search</h1>
-
     <div class="gap-3">
         <div class="row justify-content-md-center">
             <div class="input-group mb-3">
