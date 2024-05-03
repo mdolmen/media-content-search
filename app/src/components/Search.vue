@@ -5,19 +5,38 @@ import axios from 'axios';
 // Issue '..not a constructor' when importing this module as the others
 //     https://github.com/nextapps-de/flexsearch/issues/341#issuecomment-1296011307
 // Using the following from the project's README
-import Index from "../../node_modules/flexsearch/dist/module/index";
-import Document from "../../node_modules/flexsearch/dist/module/document";
+//import Index from "../../node_modules/flexsearch/dist/module/index";
+//import Document from "../../node_modules/flexsearch/dist/module/document";
+import Document from "flexsearch/dist/module/document";
 
 // TEST TAURI
 import { invoke } from '@tauri-apps/api';
 
 const backend_url = 'http://localhost:8000'
 
+let transcript = ref();
+let isYoutube = ref(false);
+let videoUrl = ref("");
+let videoEmbedUrl = ref("");
+let index = new Document({
+  id: "id",
+  index: [{
+    field: "content",
+    tokenize: "full"
+  }]
+});
+let inputSearch = ref("");
+let status = ref("idle");
+let debug = ref("nothing");
+declare var YT: any; // because YouTube API loaded asynchronously
+let player: any = null;
+let ytAPIReady = false;
+
 function test_python_from_rust() {
     invoke('py_get_version')
-        .then((response) => debug.value = response)
+        .then((response) => debug.value = response as string)
+    invoke('mcs_get_transcript', { link: "" });
 }
-test_python_from_rust();
 
 function videoSeek(time: number) {
     player.seekTo(time, true);
@@ -58,46 +77,36 @@ function getTranscriptForDev() {
     };
 }
 
-let transcript = ref();
-let isYoutube = ref(false);
-let videoUrl = ref("");
-let videoEmbedUrl = ref("");
-let index = new Document({
-  id: "time",
-  index: [{
-    field: "content",
-    tokenize: "full"
-  }]
-});
-let inputSearch = ref("");
-let status = ref("idle");
-let debug = ref("nothing");
-let player = null;
-let ytAPIReady = false;
-
 function setupRealTimeSearch() {
-    // TODO: transcript from parameter instead?
-    for (let key in transcript.value) {
+    for (let i = 0; i < transcript.value.length; i++) {
+        var line = transcript.value[i];
         index.add({
-            time: key,
-            content: transcript.value[key]
+            id: i,
+            time: line[0],
+            content: line[1]
         });
     }
 
     console.log(index);
 }
 
+/*
+ * Search the 'input' text into the index and return an array of entries
+ * containing 'input'.
+ */
 function realTimeSearch() {
     let resultIndex = index.search(inputSearch.value);
-    let result = {};
+    let result = [];
 
     if (resultIndex.length <= 0) {
         return result;
     }
 
-    let times = resultIndex[0]["result"];
-    for (let i in times) {
-        result[times[i]] = transcript.value[times[i]];
+    let ids = (resultIndex[0] as any)["result"];
+    for (let i = 0; i < ids.length; i++) {
+        let id = ids[i];
+        // push([time, text])
+        result.push([transcript.value[id][0], transcript.value[id][1]]);
     }
 
     return result;
@@ -115,7 +124,7 @@ function realTimeSearch() {
  *    http://www.youtube.com/watch?v=0zM3nApSvMg
  *    http://youtu.be/0zM3nApSvMg
  */
-function youtubeParser(url){
+function youtubeParser(url: string){
     var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
     var match = url.match(regExp);
     return (match&&match[7].length==11)? match[7] : false;
@@ -123,11 +132,11 @@ function youtubeParser(url){
 
 async function updateTranscript() {
     const videoId = youtubeParser(videoUrl.value);
-    videoEmbedUrl = "https://www.youtube.com/embed/"+videoId;
+    videoEmbedUrl = ref("https://www.youtube.com/embed/"+videoId);
     transcript.value = {}
     status.value = "extracting transcript...";
 
-    console.log(videoId);
+    console.log("video id = ", videoId);
     console.log("getting transcript");
 
     // Load video
@@ -148,19 +157,25 @@ async function updateTranscript() {
 
     // Extract transcript
     try {
-        const response = await axios.get(backend_url+'/load', {
-            params: { link: videoEmbedUrl }
-        });
-        const data = response.data;
-        transcript.value = data;
-        console.log('Transcript:\n', transcript.value);
+        // invoke tauri command, async
+        invoke('mcs_get_transcript', { link: videoEmbedUrl.value }).then(
+          message => {
+            debug.value = message[0];
+            transcript.value = message;
+            status.value = "transcript loaded";
+            console.log("done");
+            setupRealTimeSearch();
+          }
+        );
+        //const response = await axios.get(backend_url+'/load', {
+        //    params: { link: videoEmbedUrl }
+        //});
+        //const data = response.data;
+        //transcript.value = data;
+        //console.log('Transcript:\n', transcript.value);
     } catch (error) {
         console.log(error);
     }
-
-    console.log("done");
-    status.value = "transcript loaded";
-    setupRealTimeSearch();
 }
 
 //
@@ -175,10 +190,14 @@ function loadYoutubeAPI() {
 
     tag.src = "https://www.youtube.com/iframe_api";
     var firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    if (firstScriptTag.parentNode) {
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    } else {
+        console.log("loadYoutubeAPI: failed to load API");
+    }
 
     // To make the callback accessible to the API
-    window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+    (window as any).onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
 }
 
 // 3. This function creates an <iframe> (and YouTube player)
@@ -189,9 +208,22 @@ function onYouTubeIframeAPIReady() {
 }
 
 // 4. The API will call this function when the video player is ready.
-function onPlayerReady(event) {
+function onPlayerReady(event: any) {
     console.log("onPlayerReady");
     event.target.playVideo();
+}
+
+// Convert milliseconds to time format (00:00:00).
+function secondsToTime(seconds) {
+    let secs = Math.floor(seconds % 60);
+    let minutes = Math.floor(seconds / 60);
+    let hours = Math.floor(minutes / 60);
+
+    hours = (hours < 10) ? "0" + hours : hours;
+    minutes = (minutes < 10) ? "0" + minutes : minutes;
+    secs = (secs < 10) ? "0" + secs : secs;
+
+    return hours + ":" + minutes + ":" + secs;
 }
 
 loadYoutubeAPI()
@@ -218,9 +250,11 @@ loadYoutubeAPI()
                 <div class="row">
                     <p>Status: {{ status }}</p>
                 </div>
+                <!--
                 <div class="row">
                     <p>Debug: {{ debug }}</p>
                 </div>
+                -->
             </div>
 
             <div id="result" class="col col-6">
@@ -242,11 +276,12 @@ loadYoutubeAPI()
                 <div class="transcript">
 
                 <ul class="list-group">
-                    <li v-for="(line, timestamp) in inputSearch ? realTimeSearch() : transcript" :key="timestamp"
+                    <li v-for="line in inputSearch ? realTimeSearch() : transcript" :key="line[0]"
                         class="list-group-item list-group-item-action transcript-line"
-                        @click="videoSeek(timestamp)"
+                        @click="videoSeek(line[0] / 100)"
                     >
-                        {{ timestamp }} : {{ line }}
+                        <!-- Format is seconds.ms without separators. E.g. 5.35 sec -> 535 -->
+                        {{ secondsToTime(line[0] / 100) }} : {{ line[1] }}
                     </li>
                 </ul>
                 </div>
