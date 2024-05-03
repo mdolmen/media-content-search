@@ -28,7 +28,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "com.mcsearch.dev",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -55,10 +55,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
+        "height": 750,
         "resizable": true,
         "title": "MC Search",
-        "width": 800
+        "width": 1000
       }
     ]
   }
