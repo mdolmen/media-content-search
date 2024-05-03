@@ -18,7 +18,11 @@ tauri-build = { version = "1.5.1", features = [] }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.6.1", features = [] }
-pyo3 = { version = "0.21.2", features = ["auto-initialize"] }
+pyo3 = { version = "0.20.0", features = ["auto-initialize"] }
+pyo3-asyncio = { version = "0.20", features = ["attributes", "async-std-runtime"] }
+async-std = "1.9"
+whisper-rs = "0.11.1"
+numpy = "0.20.0"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
