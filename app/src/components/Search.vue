@@ -31,6 +31,7 @@ let debug = ref("nothing");
 declare var YT: any; // because YouTube API loaded asynchronously
 let player: any = null;
 let ytAPIReady = false;
+let isRemoteEnabled = ref(false);
 
 function test_python_from_rust() {
     invoke('py_get_version')
@@ -244,6 +245,12 @@ loadYoutubeAPI()
         </div>
     </div>
 
+    <div class="flex flex-row mb-5">
+        <input type="checkbox" id="enableRemote" class="toggle mr-2" v-model="isRemoteEnabled" />
+        <p> Remote (Replicate): </p>
+        <input type="text" class="ml-2" placeholder="API Key" v-model="replicateApi">
+    </div>
+
     <div class="columns-2 gap-4 flex flex-row">
         <div class="w-full flex flex-col">
             <!-- Hack to align the player with the table... -->
@@ -286,7 +293,8 @@ loadYoutubeAPI()
     </div>
 
     <div id="status-bar" class="flex flex-row mt-10 mb-5">
-        <p>Status: {{ status }}</p>
+        <label>Status: {{ status }}</label>
+        <label for="enableRemote" class="ml-3">Remote: {{ isRemoteEnabled }}</label>
         <!--
         <p>Debug: {{ debug }}</p>
         -->
@@ -326,6 +334,12 @@ loadYoutubeAPI()
 #status-bar {
     position: fixed;
     bottom: 0;
+}
+
+#replicate-api {
+    border-style: solid;
+    border-width: 1px;
+    border-radius: var(--rounded-btn, 0.5rem);
 }
 
 .search-bar {
