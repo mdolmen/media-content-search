@@ -44,37 +44,37 @@ function videoSeek(time: number) {
 }
 
 function getTranscriptForDev() {
-    transcript.value = {
-  "0.0": " See, a statically typed procedural programming language famous for making the world go around.",
-  "5.52": " It's the language behind many tools we take for granted, like the Windows, Linux, and Mac operating",
-  "10.48": " system kernels, databases like MySQL, interpreters for languages like Python, tools like VIM and Git,",
-  "17.12": " and countless others. It was created in 1972 by Dennis Richie at Bell Labs, where it would be used to",
-  "22.96": " develop the Unix operating system. It would go on to become the mother of all languages,",
-  "27.04": " inspiring the syntax of C++, C sharp, Java, JavaScript, Terrel, and PHP just to name a few.",
-  "33.36": " It compiles directly to machine code and requires minimal runtime support, but is platform",
-  "37.84": " dependent, meaning the executable is designed to run on a specific operating system. It's a high",
-  "43.12": " level language designed for humans, yet provides low-level control over memory and hardware.",
-  "47.68": " There's no garbage collector. Instead, your code needs to manage its own memory. When you create a",
-  "51.92": " variable, it's assigned an address and memory. You can store that address in another variable",
-  "56.4": " called a pointer. When the variable is no longer needed, you'll need to free it to avoid memory",
-  "60.8": " leaks. To get started, install AC compiler. A popular choice is the GNU-C compiler or GCC.",
-  "66.96": " Create a file, ending in .c, include any libraries you plan to use, then add a main function to it.",
-  "72.24": " This is where your program will start executing. There's no function keyword, and notice how it",
-  "76.32": " returns an integer type. A return value of 0 means success, while a return value of 1 means",
-  "81.52": " failure. There are only a few basic types in C, create a variable by starting with a type,",
-  "86.16": " followed by a name and value. Use print to print the value to the standard output, or put an",
-  "91.52": " ampersand in front of it to reference its address and memory. There's no string type, but instead",
-  "96.24": " char, which represents a 1 by character stored as an integer. A string can be created within a",
-  "101.44": " ray of characters. Each letter will have its own memory address and be terminated by a null",
-  "105.84": " character. Another approach is to start with a pointer by adding a star character in front of the",
-  "111.2": " type, then we can allocate 4 bytes to it. Now assign a character to each index, ending with a",
-  "116.0": " null character to create a string. When you no longer need that memory allocated to your program,",
-  "120.24": " use free to release it back to the computer's RAM. The language is procedural, and does not support",
-  "125.6": " object-oriented features, although you can create your own complex data types using structs.",
-  "130.16": " Now compile your code to machine instructions for your operating system using the C compiler.",
-  "134.8": " This has been the C programming language in 100 seconds. Hit the like button and subscribe if",
-  "139.36": " you want to see more short videos like this. Thanks for watching, and I will see you in the next one."
-    };
+    transcript.value = [
+  ["0.0", " See, a statically typed procedural programming language famous for making the world go around."],
+  ["5.52", " It's the language behind many tools we take for granted, like the Windows, Linux, and Mac operating"],
+  ["10.48", " system kernels, databases like MySQL, interpreters for languages like Python, tools like VIM and Git,"],
+  ["17.12", " and countless others. It was created in 1972 by Dennis Richie at Bell Labs, where it would be used to"],
+  ["22.96", " develop the Unix operating system. It would go on to become the mother of all languages,"],
+  ["27.04", " inspiring the syntax of C++, C sharp, Java, JavaScript, Terrel, and PHP just to name a few."],
+  ["33.36", " It compiles directly to machine code and requires minimal runtime support, but is platform"],
+  ["37.84", " dependent, meaning the executable is designed to run on a specific operating system. It's a high"],
+  ["43.12", " level language designed for humans, yet provides low-level control over memory and hardware."],
+  ["47.68", " There's no garbage collector. Instead, your code needs to manage its own memory. When you create a"],
+  ["51.92", " variable, it's assigned an address and memory. You can store that address in another variable"],
+  ["56.4", " called a pointer. When the variable is no longer needed, you'll need to free it to avoid memory"],
+  ["60.8", " leaks. To get started, install AC compiler. A popular choice is the GNU-C compiler or GCC."],
+  ["66.96", " Create a file, ending in .c, include any libraries you plan to use, then add a main function to it."],
+  ["72.24", " This is where your program will start executing. There's no function keyword, and notice how it"],
+  ["76.32", " returns an integer type. A return value of 0 means success, while a return value of 1 means"],
+  ["81.52", " failure. There are only a few basic types in C, create a variable by starting with a type,"],
+  ["86.16", " followed by a name and value. Use print to print the value to the standard output, or put an"],
+  ["91.52", " ampersand in front of it to reference its address and memory. There's no string type, but instead"],
+  ["96.24", " char, which represents a 1 by character stored as an integer. A string can be created within a"],
+  ["101.44", " ray of characters. Each letter will have its own memory address and be terminated by a null"],
+  ["105.84", " character. Another approach is to start with a pointer by adding a star character in front of the"],
+  ["111.2", " type, then we can allocate 4 bytes to it. Now assign a character to each index, ending with a"],
+  ["116.0", " null character to create a string. When you no longer need that memory allocated to your program,"],
+  ["120.24", " use free to release it back to the computer's RAM. The language is procedural, and does not support"],
+  ["125.6", " object-oriented features, although you can create your own complex data types using structs."],
+  ["130.16", " Now compile your code to machine instructions for your operating system using the C compiler."],
+  ["134.8", " This has been the C programming language in 100 seconds. Hit the like button and subscribe if"],
+  ["139.36", " you want to see more short videos like this. Thanks for watching, and I will see you in the next one."]
+    ];
 }
 
 function setupRealTimeSearch() {
@@ -230,95 +230,107 @@ loadYoutubeAPI()
 </script>
 
 <template>
-    <div class="gap-3">
-        <div class="row justify-content-md-center">
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Video URL" aria-label="Video URL" aria-describedby="basic-addon2" v-model="videoUrl">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-secondary" type="button" @click="isYoutube = true; updateTranscript()">Load</button>
-                    <button class="col btn btn-secondary" @click="isYoutube = false; getTranscriptForDev()">[TODO] Upload (load transcript for dev)</button>
-                </div>
+    <div class="flex flex-row mb-4">
+        <div class="basis-4/5 mr-2">
+            <label class="input input-bordered flex items-center gap-2">
+                <input type="text" class="grow" placeholder="Video URL" v-model="videoUrl" @keyup.enter="isYoutube = true; updateTranscript()">
+                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 18" @click="isYoutube = true; updateTranscript()">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 1v11m0 0 4-4m-4 4L4 8m11 4v3a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-3"/>
+                </svg>
+            </label>
+        </div>
+        <div class="basis-1/5">
+            <button class="col btn btn-secondary" @click="isYoutube = false; getTranscriptForDev()">Load transcript for dev</button>
+        </div>
+    </div>
+
+    <div class="columns-2 gap-4 flex flex-row">
+        <div class="w-full flex flex-col">
+            <!-- Hack to align the player with the table... -->
+            <div class="">
+                <a role="tab" class="tab"></a>
             </div>
 
-        </div>
-
-        <div class="row">
-            <div id="player-wrapper" class="col col-6">
+            <div id="player-wrapper" class="w-full aspect-video mt-2">
                 <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
                 <div id="player"></div>
+            </div>
+        </div>
 
-                <div class="row">
-                    <p>Status: {{ status }}</p>
-                </div>
-                <!--
-                <div class="row">
-                    <p>Debug: {{ debug }}</p>
-                </div>
-                -->
+        <div id="result" class="w-full">
+            <div role="tablist" class="tabs tabs-bordered">
+                <a role="tab" class="tab tab-active">Search</a>
+                <a role="tab" class="tab">ChatGPT</a>
+                <a role="tab" class="tab">Keywords</a>
             </div>
 
-            <div id="result" class="col col-6">
-                  <ul class="nav nav-tabs">
-                      <li class="nav-item">
-                          <a class="nav-link active" href="#">Search</a>
-                      </li>
-                      <li class="nav-item">
-                          <a class="nav-link" href="#">ChatGPT</a>
-                      </li>
-                      <li class="nav-item">
-                          <a class="nav-link" href="#">Local AI</a>
-                      </li>
-                      <li class="nav-item">
-                          <a class="nav-link" href="#">Keywords</a>
-                      </li>
-                  </ul>
+            <div id="transcript-table" class="overflow-auto mt-2 mb-2">
+                <table class="table-zebra overflow-auto">
+                    <tbody>
+                        <tr v-for="line in inputSearch ? realTimeSearch() : transcript" :key="line[0]"
+                            class="overflow-auto"
+                            @click="videoSeek(line[0] / 100)"
+                        >
+                            <!-- Format is seconds.ms without separators. E.g. 5.35 sec -> 535 -->
+                            <th>[{{ secondsToTime(line[0] / 100) }}]</th>
+                            <th class="transcript-line ml-2">{{ line[1] }}</th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-                <div class="transcript">
-
-                <ul class="list-group">
-                    <li v-for="line in inputSearch ? realTimeSearch() : transcript" :key="line[0]"
-                        class="list-group-item list-group-item-action transcript-line"
-                        @click="videoSeek(line[0] / 100)"
-                    >
-                        <!-- Format is seconds.ms without separators. E.g. 5.35 sec -> 535 -->
-                        {{ secondsToTime(line[0] / 100) }} : {{ line[1] }}
-                    </li>
-                </ul>
-                </div>
-
-                <div class="input-group search-bar">
-                  <input type="text" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="basic-addon2" v-model="inputSearch">
-                </div>
+            <div class="">
+              <input type="text" class="input input-bordered w-full" placeholder="Search" v-model="inputSearch">
             </div>
         </div>
     </div>
+
+    <div id="status-bar" class="flex flex-row mt-10 mb-5">
+        <p>Status: {{ status }}</p>
+        <!--
+        <p>Debug: {{ debug }}</p>
+        -->
+    </div>
+
 </template>
 
 <style>
+#player {
+    border-radius: var(--rounded-btn, 0.5rem);
+}
+
 .transcript {
     border-style: solid;
     border-width: 1px;
     min-height: 63vh;
-    max-height: 63vh;
     overflow: scroll;
 }
 
 .transcript-line {
-    white-space: nowrap;
-    overflow: scroll;
+    white-space: nowrap !important;
+    text-align: left;
+}
+
+#transcript-table {
+    min-height: 50vh;
+    max-height: 60vh;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: var(--rounded-btn, 0.5rem);
+}
+
+#result {
+    max-width: 50%;
+}
+
+#status-bar {
+    position: fixed;
+    bottom: 0;
 }
 
 .search-bar {
     margin: auto;
     margin-top: 8px;
-}
-
-#player-wrapper {
-  max-width: 50%;
-}
-
-#result {
-  max-width: 50%;
 }
 
 iframe {
