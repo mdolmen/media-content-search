@@ -40,8 +40,6 @@ async fn mcs_get_transcript(link: String) -> Vec<(i64, String)> {
 fn py_dl_audio(link: &String) -> PyResult<String> {
     let code = include_str!("../../../backend/src/media.py");
 
-    println!("DEBUG: in py_dl_audio");
-
     Python::with_gil(|py| {
         let sys = py.import("sys")?;
         let path = sys.getattr("path")?;
@@ -57,12 +55,8 @@ fn py_dl_audio(link: &String) -> PyResult<String> {
         let _yt_dlp = PyModule::import(py, "yt_dlp")?;
         let media = PyModule::from_code(py, code, "media.py", "media")?;
 
-        println!("link = {}", link.as_str());
         let audio_file: String = media.getattr("ytdl_and_extract_audio")?.call1((link.as_str(),))?.extract()?;
-        println!("[+] audio file = {}", audio_file);
 
-        //Ok::<String, PyErr>("Error".to_string())
-        //pyo3_asyncio::async_std::into_future(get_transcript)
         Ok(audio_file)
     })
 }

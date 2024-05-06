@@ -9,10 +9,7 @@ import axios from 'axios';
 //import Document from "../../node_modules/flexsearch/dist/module/document";
 import Document from "flexsearch/dist/module/document";
 
-// TEST TAURI
 import { invoke } from '@tauri-apps/api';
-
-const backend_url = 'http://localhost:8000'
 
 let transcript = ref();
 let isYoutube = ref(false);
@@ -32,12 +29,6 @@ declare var YT: any; // because YouTube API loaded asynchronously
 let player: any = null;
 let ytAPIReady = false;
 let isRemoteEnabled = ref(false);
-
-function test_python_from_rust() {
-    invoke('py_get_version')
-        .then((response) => debug.value = response as string)
-    invoke('mcs_get_transcript', { link: "" });
-}
 
 function videoSeek(time: number) {
     player.seekTo(time, true);
@@ -168,12 +159,6 @@ async function updateTranscript() {
             setupRealTimeSearch();
           }
         );
-        //const response = await axios.get(backend_url+'/load', {
-        //    params: { link: videoEmbedUrl }
-        //});
-        //const data = response.data;
-        //transcript.value = data;
-        //console.log('Transcript:\n', transcript.value);
     } catch (error) {
         console.log(error);
     }
