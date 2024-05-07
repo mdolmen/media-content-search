@@ -29,7 +29,7 @@ let debug = ref("nothing");
 declare var YT: any; // because YouTube API loaded asynchronously
 let player: any = null;
 let ytAPIReady = false;
-let isRemoteEnabled = ref(false);
+let remoteEnabled = ref(false);
 
 function videoSeek(time: number) {
     player.seekTo(time, true);
@@ -151,7 +151,7 @@ async function updateTranscript() {
     // Extract transcript
     try {
         // invoke tauri command, async
-        invoke('mcs_get_transcript', { link: videoEmbedUrl.value }).then(
+        invoke('mcs_get_transcript', { link: videoEmbedUrl.value, remote: remoteEnabled.value }).then(
           message => {
             debug.value = message[0];
             transcript.value = message;
@@ -227,7 +227,7 @@ loadYoutubeAPI()
             </label>
         </div>
         <div class="w-full basis-1/6 flex flex-row items-center">
-            <input type="checkbox" id="enableRemote" class="toggle mr-2" v-model="isRemoteEnabled" />
+            <input type="checkbox" id="enableRemote" class="toggle mr-2" v-model="remoteEnabled" />
             <p>Remote</p>
             <div class="tooltip ml-1" data-tip="Enable to execute the transcription using Replicate. Config required in conf.yaml.">
                 <QuestionMarkCircleIcon class="size-4 text-blue-500"/>
@@ -279,7 +279,7 @@ loadYoutubeAPI()
 
     <div id="status-bar" class="flex flex-row mt-10 mb-5">
         <label>Status: {{ status }}</label>
-        <label for="enableRemote" class="ml-3">Remote: {{ isRemoteEnabled }}</label>
+        <label for="enableRemote" class="ml-3">Remote: {{ remoteEnabled }}</label>
         <label class="bg-gray-300 ml-3" @click="isYoutube = false; getTranscriptForDev()">Load transcript for dev</label>
         <!--
         <p>Debug: {{ debug }}</p>

@@ -28,11 +28,17 @@ impl LoggingStdout {
 }
 
 #[tauri::command]
-async fn mcs_get_transcript(link: String) -> Vec<(i64, String)> {
+async fn mcs_get_transcript(link: String, remote: bool) -> Vec<(i64, String)> {
     let audio_file = py_dl_audio(&link)
         .expect("failed to get the path to the audio file");
 
-    let transcript = transcribe(audio_file.as_str());
+    let transcript = match remote {
+        true => {
+            py_transcribe_remote(audio_file.as_str())
+                .expect("failed to get the transcript from remote runner")
+        },
+        false => transcribe(audio_file.as_str()),
+    };
 
     transcript
 }
@@ -58,6 +64,33 @@ fn py_dl_audio(link: &String) -> PyResult<String> {
         let audio_file: String = media.getattr("ytdl_and_extract_audio")?.call1((link.as_str(),))?.extract()?;
 
         Ok(audio_file)
+    })
+}
+
+fn py_transcribe_remote(link: &str) -> PyResult<Vec<(i64, String)>> {
+    let code = include_str!("../../../backend/src/remote.py");
+
+    println!("DEBUG: in py_transcribe_remote");
+    println!("DEBUG: {}", link);
+
+    Python::with_gil(|py| {
+        let sys = py.import("sys")?;
+        let path = sys.getattr("path")?;
+
+        // Python's output to stdout
+        sys.setattr("stdout", LoggingStdout.into_py(py))?;
+
+        // Append venv to path
+        // The workdir from python is 'app/src-tauri', not 'app/src-tauri/src' as above to
+        // include_str the code file
+        path.call_method1("append", ("../../venv/lib/python3.12/site-packages",))?;
+
+        let _replicate = PyModule::import(py, "replicate")?;
+        let remote = PyModule::from_code(py, code, "remote.py", "remote")?;
+
+        let transcript: Vec<(i64, String)> = remote.getattr("transcribe")?.call1((link,))?.extract()?;
+
+        Ok(transcript)
     })
 }
 
