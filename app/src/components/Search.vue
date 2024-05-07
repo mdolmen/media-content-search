@@ -10,6 +10,7 @@ import axios from 'axios';
 import Document from "flexsearch/dist/module/document";
 
 import { invoke } from '@tauri-apps/api';
+import { QuestionMarkCircleIcon } from '@heroicons/vue/24/solid'
 
 let transcript = ref();
 let isYoutube = ref(false);
@@ -232,8 +233,10 @@ loadYoutubeAPI()
 
     <div class="flex flex-row mb-5">
         <input type="checkbox" id="enableRemote" class="toggle mr-2" v-model="isRemoteEnabled" />
-        <p> Remote (Replicate): </p>
-        <input type="text" class="ml-2" placeholder="API Key" v-model="replicateApi">
+        <p> Remote (Replicate)</p>
+        <div class="tooltip" data-tip="Enable to execute the transcription using Replicate. Config required in conf.yaml.">
+            <QuestionMarkCircleIcon class="size-4 text-blue-500"/>
+        </div>
     </div>
 
     <div class="columns-2 gap-4 flex flex-row">
