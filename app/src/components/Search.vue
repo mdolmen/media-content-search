@@ -218,7 +218,7 @@ loadYoutubeAPI()
 
 <template>
     <div class="flex flex-row mb-4">
-        <div class="basis-4/5 mr-2">
+        <div class="basis-5/6 mr-4">
             <label class="input input-bordered flex items-center gap-2">
                 <input type="text" class="grow" placeholder="Video URL" v-model="videoUrl" @keyup.enter="isYoutube = true; updateTranscript()">
                 <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 18" @click="isYoutube = true; updateTranscript()">
@@ -226,18 +226,15 @@ loadYoutubeAPI()
                 </svg>
             </label>
         </div>
-        <div class="basis-1/5">
-            <button class="col btn btn-secondary" @click="isYoutube = false; getTranscriptForDev()">Load transcript for dev</button>
+        <div class="w-full basis-1/6 flex flex-row items-center">
+            <input type="checkbox" id="enableRemote" class="toggle mr-2" v-model="isRemoteEnabled" />
+            <p>Remote</p>
+            <div class="tooltip ml-1" data-tip="Enable to execute the transcription using Replicate. Config required in conf.yaml.">
+                <QuestionMarkCircleIcon class="size-4 text-blue-500"/>
+            </div>
         </div>
     </div>
 
-    <div class="flex flex-row mb-5">
-        <input type="checkbox" id="enableRemote" class="toggle mr-2" v-model="isRemoteEnabled" />
-        <p> Remote (Replicate)</p>
-        <div class="tooltip" data-tip="Enable to execute the transcription using Replicate. Config required in conf.yaml.">
-            <QuestionMarkCircleIcon class="size-4 text-blue-500"/>
-        </div>
-    </div>
 
     <div class="columns-2 gap-4 flex flex-row">
         <div class="w-full flex flex-col">
@@ -283,6 +280,7 @@ loadYoutubeAPI()
     <div id="status-bar" class="flex flex-row mt-10 mb-5">
         <label>Status: {{ status }}</label>
         <label for="enableRemote" class="ml-3">Remote: {{ isRemoteEnabled }}</label>
+        <label class="bg-gray-300 ml-3" @click="isYoutube = false; getTranscriptForDev()">Load transcript for dev</label>
         <!--
         <p>Debug: {{ debug }}</p>
         -->
