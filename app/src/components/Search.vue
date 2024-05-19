@@ -261,10 +261,9 @@ loadYoutubeAPI()
                     <tbody>
                         <tr v-for="line in inputSearch ? realTimeSearch() : transcript" :key="line[0]"
                             class="overflow-auto"
-                            @click="videoSeek(line[0] / 100)"
+                            @click="videoSeek(line[0])"
                         >
-                            <!-- Format is seconds.ms without separators. E.g. 5.35 sec -> 535 -->
-                            <th>[{{ secondsToTime(line[0] / 100) }}]</th>
+                            <th>[{{ secondsToTime(line[0]) }}]</th>
                             <th class="transcript-line ml-2">{{ line[1] }}</th>
                         </tr>
                     </tbody>

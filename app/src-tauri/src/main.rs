@@ -28,7 +28,7 @@ impl LoggingStdout {
 }
 
 #[tauri::command]
-async fn mcs_get_transcript(link: String, remote: bool) -> Vec<(i64, String)> {
+async fn mcs_get_transcript(link: String, remote: bool) -> Vec<(f64, String)> {
     let audio_file = py_dl_audio(&link)
         .expect("failed to get the path to the audio file");
 
@@ -67,7 +67,7 @@ fn py_dl_audio(link: &String) -> PyResult<String> {
     })
 }
 
-fn py_transcribe_remote(link: &str) -> PyResult<Vec<(i64, String)>> {
+fn py_transcribe_remote(link: &str) -> PyResult<Vec<(f64, String)>> {
     let code = include_str!("../../../backend/src/remote.py");
 
     println!("DEBUG: in py_transcribe_remote");
@@ -88,7 +88,7 @@ fn py_transcribe_remote(link: &str) -> PyResult<Vec<(i64, String)>> {
         let _replicate = PyModule::import(py, "replicate")?;
         let remote = PyModule::from_code(py, code, "remote.py", "remote")?;
 
-        let transcript: Vec<(i64, String)> = remote.getattr("transcribe")?.call1((link,))?.extract()?;
+        let transcript: Vec<(f64, String)> = remote.getattr("transcribe")?.call1((link,))?.extract()?;
 
         Ok(transcript)
     })
@@ -117,7 +117,7 @@ fn load_audio(file: &str) -> Vec<f32> {
     audio.to_vec()
 }
 
-fn transcribe(audio_file: &str) -> Vec<(i64, String)> {
+fn transcribe(audio_file: &str) -> Vec<(f64, String)> {
     // TODO: get path to model from config
     let path_to_model = "/Users/mat/Workspace/media-content-search/models/ggml-base.en.bin";
 
@@ -173,12 +173,8 @@ fn transcribe(audio_file: &str) -> Vec<(i64, String)> {
         //println!("[{} - {}]: {}", start_timestamp, end_timestamp, segment);
 
         // Format the segment information as a string.
-        //let line = format!("[{} - {}]: {}\n", start_timestamp, end_timestamp, segment);
-        transcript.push((start, segment));
-
-        // Write the segment information to the file.
-        //file.write_all(line.as_bytes())
-        //    .expect("failed to write to file");
+        // The format is seconds.ms without separators. E.g. 5.35 sec -> 535.
+        transcript.push((start as f64 / 100.00, segment));
     }
 
     transcript
