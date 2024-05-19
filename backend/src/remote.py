@@ -37,7 +37,6 @@ def transcribe(filename):
             "temperature_increment_on_fallback": 0.2
         }
     )
-    print(output)
     
     # Build array of segments
     for segment in output['segments']:

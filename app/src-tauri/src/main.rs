@@ -70,9 +70,6 @@ fn py_dl_audio(link: &String) -> PyResult<String> {
 fn py_transcribe_remote(link: &str) -> PyResult<Vec<(f64, String)>> {
     let code = include_str!("../../../backend/src/remote.py");
 
-    println!("DEBUG: in py_transcribe_remote");
-    println!("DEBUG: {}", link);
-
     Python::with_gil(|py| {
         let sys = py.import("sys")?;
         let path = sys.getattr("path")?;
@@ -112,7 +109,6 @@ fn load_audio(file: &str) -> Vec<f32> {
         .chunks_exact(2)
         .map(|chunk| i16::from_le_bytes([chunk[0], chunk[1]]) as f32 / MAX_AMPLITUDE)
         .collect();
-    println!("{:?}", audio.len());
 
     audio.to_vec()
 }
@@ -170,7 +166,6 @@ fn transcribe(audio_file: &str) -> Vec<(f64, String)> {
             .expect("failed to get start timestamp");
 
         // Print the segment to stdout.
-        //println!("[{} - {}]: {}", start_timestamp, end_timestamp, segment);
 
         // Format the segment information as a string.
         // The format is seconds.ms without separators. E.g. 5.35 sec -> 535.
